@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html data-bs-theme="dark">
+<head>
+  <title>SPARKY Login</title>
+  {% load django_bootstrap5 %}
+  {% load static %}
+  <link href="{% static 'web/css/bootstrap.min.css' %}" rel="stylesheet">
+  <link href="{% static 'web/css/login.css' %}" rel="stylesheet">
+  <script src="{% static 'web/js/bootstrap.bundle.min.js' %}"></script>
+</head>
+<body class="d-flex align-items-center py-4 bg-body-tertiary">
+<main class="w-100">
+  <div class="w-50 m-auto">
+    {% bootstrap_messages %}
+  </div>
+  <div class="form-signin w-100 text-center m-auto">
+    <form method="post" action="{% url "login" %}">
+      <h1 class="h3 mb-3 fw-normal">SPARKY Login</h1>
+
+      {% csrf_token %}
+      {% bootstrap_field form.username layout="floating" wrapper_class="form-floating" %}
+      {% bootstrap_field form.password layout="floating" wrapper_class="form-floating" %}
+
+      <input type="hidden" name="next" value="{{ next | default_if_none:"" }}">
+      {% bootstrap_button "Sign in" button_type="submit" extra_classes="w-100" size="lg" %}
+    </form>
+  </div>
+</main>
+</body>
+</html>

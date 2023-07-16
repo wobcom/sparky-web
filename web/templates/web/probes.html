@@ -1,0 +1,36 @@
+{% extends "web/base.html" %}
+{% block title %}SPARKY Probes{% endblock %}
+
+{% block content %}
+  <div class="h2">SPARKY Probes</div>
+  <hr class="mb-0" />
+  <div class="row">
+    {% for probe in probes %}
+      <div class="col-sm-6 mt-4">
+        <div class="card">
+          <div class="card-header">
+            <span class="float-start">{{ probe.name }}</span>
+            {% if probe.online %}
+              <span class="float-end badge bg-success-subtle border border-success-subtle text-success-emphasis rounded-pill">Online</span>
+            {% else %}
+              <span class="float-end badge bg-danger-subtle border border-danger-subtle text-danger-emphasis rounded-pill">Offline</span>
+            {% endif %}
+          </div>
+          <div class="card-body">
+            Internal IP: {{ probe.ipAddresses|first }} <br />
+            IP: {{ probe.route|slice:":-4" }}
+            {% if probe.routeEnabled %}
+              <span href="#" class="badge bg-success-subtle border border-success-subtle text-success-emphasis rounded-pill">Enabled</span>
+            {% else %}
+              <span href="#" class="badge bg-danger-subtle border border-danger-subtle text-danger-emphasis rounded-pill">Disabled</span>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      {% if forloop.counter|divisibleby:2 %}
+        </div>
+        <div class="row">
+      {% endif %}
+    {% endfor %}
+  </div>
+{% endblock %}
