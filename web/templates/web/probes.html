@@ -1,8 +1,9 @@
 {% extends "web/base.html" %}
 {% block title %}SPARKY Probes{% endblock %}
+{% load static %}
 
 {% block content %}
-  <div class="h2">SPARKY Probes</div>
+  <div class="h2">SPARKY Probes <a href="#"><i class="float-end fa-solid fa-plus"></i></a></div>
   <hr class="mb-0" />
   <div class="row">
     {% for probe in probes %}
@@ -20,9 +21,21 @@
             Internal IP: {{ probe.ipAddresses|first }} <br />
             IP: {{ probe.route|slice:":-4" }}
             {% if probe.routeEnabled %}
-              <span href="#" class="badge bg-success-subtle border border-success-subtle text-success-emphasis rounded-pill">Enabled</span>
+              <button class="badge bg-success-subtle border border-success-subtle text-success-emphasis rounded-pill"
+                      data-bs-toggle="modal"
+                      data-bs-target="#toggleRouteModal"
+                      data-bs-route-id="{{ probe.routeID }}"
+                      data-bs-route-enabled="{{ probe.routeEnabled }}"
+                      data-bs-route="{{ probe.route|slice:":-4" }}"
+              >Enabled</button>
             {% else %}
-              <span href="#" class="badge bg-danger-subtle border border-danger-subtle text-danger-emphasis rounded-pill">Disabled</span>
+              <button class="badge bg-danger-subtle border border-danger-subtle text-danger-emphasis rounded-pill"
+                      data-bs-toggle="modal"
+                      data-bs-target="#toggleRouteModal"
+                      data-bs-route-id="{{ probe.routeID }}"
+                      data-bs-route-enabled="{{ probe.routeEnabled }}"
+                      data-bs-route="{{ probe.route|slice:":-4" }}"
+              >Disabled</button>
             {% endif %}
           </div>
         </div>
@@ -33,4 +46,29 @@
       {% endif %}
     {% endfor %}
   </div>
+
+  <div class="modal fade" id="toggleRouteModal" tabindex="-1" aria-labelledby="toggleRouteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="toggleRouteModalLabel"></h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form method="post" action="{% url "toggle-route" %}">
+          <div class="modal-body">
+            <span id="toggleRouteModalInfoText"></span>
+            {% csrf_token %}
+            <input type="hidden" id="toggleRouteModalRouteID" name="route_id">
+            <input type="hidden" id="toggleRouteModalRouteEnabled" name="route_enabled">
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button id="toggleRouteModalSubmitButton" type="submit" class="btn"></button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="{% static "web/js/probes.js" %}"></script>
 {% endblock %}

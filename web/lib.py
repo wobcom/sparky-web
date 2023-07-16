@@ -10,6 +10,22 @@ class Headscale:
     }
 
     @staticmethod
+    def disable_route(route_id: int):
+        r = requests.post(
+            f"{Headscale.headscale_url}/api/v1/routes/{route_id}/disable",
+            headers=Headscale.request_headers
+        )
+        return True
+
+    @staticmethod
+    def enable_route(route_id: int):
+        r = requests.post(
+            f"{Headscale.headscale_url}/api/v1/routes/{route_id}/enable",
+            headers=Headscale.request_headers
+        )
+        return True
+
+    @staticmethod
     def get_all_nodes() -> list:
         r = requests.get(f"{Headscale.headscale_url}/api/v1/machine", headers=Headscale.request_headers)
         return r.json()['machines']

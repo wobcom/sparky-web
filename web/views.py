@@ -7,6 +7,7 @@ from django.contrib import messages
 from django.urls import reverse
 from django.http import HttpResponseRedirect, HttpRequest
 from web.lib import Headscale
+from web.forms import ToggleRouteForm
 
 
 class BaseView(LoginRequiredMixin, View):
@@ -60,7 +61,23 @@ class LogoutView(View):
 class ProbesView(BaseView):
     def get(self, request: HttpRequest):
         probes = Headscale.get_all_probes()
-        return render(request, "web/probes.html", {"probes": probes})
+        toggle_route_form = ToggleRouteForm()
+        return render(request, "web/probes.html", {"probes": probes, "toggle_route_form": toggle_route_form})
+
+
+class ToggleRouteView(BaseView):
+    def post(self, request: HttpRequest):
+        form = ToggleRouteForm(data=request.POST)
+        if not form.is_valid():
+            messages.add_message(request, messages.ERROR, "Form invalid")
+            return HttpResponseRedirect(reverse("probes"))
+        route_id = int(form.cleaned_data["route_id"])
+        route_enabled = bool(form.cleaned_data["route_enabled"])
+        if route_enabled:
+            Headscale.disable_route(route_id)
+        else:
+            Headscale.enable_route(route_id)
+        return HttpResponseRedirect(reverse("probes"))
 
 
 class InfraView(BaseView):

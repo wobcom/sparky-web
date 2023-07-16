@@ -8,4 +8,5 @@ urlpatterns = [
     path("infra/", views.InfraView.as_view(), name="infra"),
     path("login/", views.LoginView.as_view(), name="login"),
     path("logout/", views.LogoutView.as_view(), name="logout"),
+    path("routes/toggle/", views.ToggleRouteView.as_view(), name="toggle-route"),
 ]
