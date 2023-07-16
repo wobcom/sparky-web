@@ -1,4 +1,6 @@
-from sparky_web.settings import HEADSCALE_URL, HEADSCALE_API_KEY
+from sparky_web.settings import HEADSCALE_URL, HEADSCALE_API_KEY, TIME_ZONE
+from datetime import datetime, timedelta
+import pytz
 import requests
 
 
@@ -48,6 +50,15 @@ class Headscale:
     def get_all_routes():
         r = requests.get(f"{Headscale.headscale_url}/api/v1/routes", headers=Headscale.request_headers)
         return r.json()['routes']
+
+    @staticmethod
+    def get_api_key_expiration() -> timedelta:
+        prefix = HEADSCALE_API_KEY[:10]
+        r = requests.get(f"{Headscale.headscale_url}/api/v1/apikey", headers=Headscale.request_headers)
+        api_keys = r.json()['apiKeys']
+        api_key = list(filter(lambda x: x['prefix'] == prefix, api_keys)).pop()
+        expiration_time = datetime.fromisoformat(api_key['expiration'])
+        return expiration_time - datetime.now(tz=pytz.timezone(TIME_ZONE))
 
     @staticmethod
     def map_routes_to_nodes(nodes: list) -> list:

@@ -8,6 +8,7 @@ from django.urls import reverse
 from django.http import HttpResponseRedirect, HttpRequest
 from web.lib import Headscale
 from web.forms import ToggleRouteForm
+from sparky_web.settings import API_KEY_EXPIRATION_DAYS_WARNING, API_KEY_EXPIRATION_DAYS_CRITICAL
 
 
 class BaseView(LoginRequiredMixin, View):
@@ -17,6 +18,19 @@ class BaseView(LoginRequiredMixin, View):
 
 class IndexView(BaseView):
     def get(self, request: HttpRequest):
+        api_key_expiration_days = Headscale.get_api_key_expiration().days
+        if api_key_expiration_days <= API_KEY_EXPIRATION_DAYS_CRITICAL:
+            messages.add_message(
+                request,
+                messages.ERROR,
+                f"The API Key expires in {api_key_expiration_days} days. Please renew it as soon as possible."
+            )
+        elif api_key_expiration_days <= API_KEY_EXPIRATION_DAYS_WARNING:
+            messages.add_message(
+                request,
+                messages.WARNING,
+                f"The API Key expires in {api_key_expiration_days} days. Please renew it timely."
+            )
         return render(request, "web/index.html")
 
 

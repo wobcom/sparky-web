@@ -28,6 +28,15 @@ SECRET_KEY = getattr(configuration, "SECRET_KEY")
 
 DEBUG = getattr(configuration, "DEBUG", False)
 
+API_KEY_EXPIRATION_DAYS_WARNING = getattr(configuration, "API_KEY_EXPIRATION_DAYS_WARNING", 30)
+API_KEY_EXPIRATION_DAYS_CRITICAL = getattr(configuration, "API_KEY_EXPIRATION_DAYS_CRITICAL", 15)
+
+if API_KEY_EXPIRATION_DAYS_CRITICAL >= API_KEY_EXPIRATION_DAYS_WARNING:
+    raise ImproperlyConfigured(
+        "The value of 'API_KEY_EXPIRATION_DAYS_CRITICAL' has to be smaller than the value of"
+        "'API_KEY_EXPIRATION_DAYS_WARNING'."
+    )
+
 HEADSCALE_URL = getattr(configuration, "HEADSCALE_URL")
 HEADSCALE_API_KEY = getattr(configuration, "HEADSCALE_API_KEY")
 
