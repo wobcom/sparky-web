@@ -1,3 +1,4 @@
+from django.db import IntegrityError
 from django.shortcuts import render
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.forms import AuthenticationForm
@@ -9,18 +10,24 @@ from django.http import HttpResponseRedirect, HttpRequest, JsonResponse
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from web.lib import Headscale
-from web.forms import ToggleRouteForm
+from web.forms import AddProbeForm, ToggleRouteForm
 from web.models import Probe
+import random
+import string
+import macaddress
 from sparky_web.settings import \
     API_KEY_EXPIRATION_DAYS_WARNING, \
     API_KEY_EXPIRATION_DAYS_CRITICAL, \
     PROBE_REPO_URL, \
-    PROBE_REPO_ACCESS_TOKEN
+    PROBE_REPO_ACCESS_TOKEN, \
+    PROBE_TAILNET_SUBNET, \
+    PROBE_HOSTNAME_PREFIX
 
 
 @method_decorator(csrf_exempt, name='dispatch')
 class APIView(View):
     pass
+
 
 class BaseView(LoginRequiredMixin, View):
     login_url = '/login/'
@@ -86,9 +93,67 @@ class LogoutView(View):
 class ProbesView(BaseView):
     def get(self, request: HttpRequest):
         probes = Headscale.get_all_probes_with_live_data()
+        add_probe_form = AddProbeForm()
         toggle_route_form = ToggleRouteForm()
-        return render(request, "web/probes.html", {"probes": probes, "toggle_route_form": toggle_route_form})
+        return render(
+            request,
+            "web/probes.html",
+            {
+                "probes": probes,
+                "add_probe_form": add_probe_form,
+                "toggle_route_form": toggle_route_form,
+            }
+        )
 
+
+class AddProbeView(BaseView):
+    def post(self, request: HttpRequest):
+        form = AddProbeForm(data=request.POST)
+        if not form.is_valid():
+            messages.add_message(request, messages.ERROR, "Form invalid")
+            return HttpResponseRedirect(reverse("probes"))
+        try:
+            mac = macaddress.MAC(form.cleaned_data['mac_address'])
+        except (ValueError, TypeError):
+            messages.add_message(request, messages.ERROR, "Invalid MAC address format")
+            return HttpResponseRedirect(reverse("probes"))
+        mac = str(mac).replace("-", ":").lower()
+        probes = Probe.objects.all()
+        used_probe_nos = list()
+        used_probe_ips = list()
+        for probe in probes:
+            probe_no = int(probe.hostname[-2:])
+            used_probe_nos.append(probe_no)
+            used_probe_ips.append(probe.ip)
+        next_probe_no = (i for i in range(1, 99) if i not in used_probe_nos)
+        next_probe_no = next(next_probe_no)
+        next_probe_no = str(next_probe_no).zfill(2)
+        next_probe_ip = (host for host in PROBE_TAILNET_SUBNET.hosts() if str(host) not in used_probe_ips)
+        next_probe_ip = str(next(next_probe_ip))
+        pre_auth_key = Headscale.generate_probe_pre_auth_key()
+        api_key = ''.join(random.choices(string.ascii_letters + string.digits, k=32))
+        bandwidth_limit = form.cleaned_data['iperf3_bandwidth_limit']
+        if not bandwidth_limit:
+            bandwidth_limit = None
+        probe = Probe()
+        probe.hostname = PROBE_HOSTNAME_PREFIX + next_probe_no
+        probe.ip = next_probe_ip
+        probe.pre_auth_key = pre_auth_key
+        probe.api_key = api_key
+        probe.mac_address = mac
+        probe.test_iperf3 = form.cleaned_data['iperf3_enabled']
+        probe.test_iperf3_bandwidth = bandwidth_limit
+        try:
+            probe.save()
+        except IntegrityError:
+            Headscale.expire_probe_pre_auth_key(pre_auth_key)
+            messages.add_message(
+                request,
+                messages.ERROR,
+                "Probe with this name, IP or MAC-Address already exists. Please check your inputs and try again."
+            )
+            return HttpResponseRedirect(reverse("probes"))
+        return HttpResponseRedirect(reverse("probes"))
 
 class ToggleRouteView(BaseView):
     def post(self, request: HttpRequest):

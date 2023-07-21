@@ -1,9 +1,10 @@
 {% extends "web/base.html" %}
 {% block title %}SPARKY Probes{% endblock %}
 {% load static %}
+{% load django_bootstrap5 %}
 
 {% block content %}
-  <div class="h2">SPARKY Probes <a href="#"><i class="float-end fa-solid fa-plus"></i></a></div>
+  <div class="h2">SPARKY Probes <a href="#" data-bs-toggle="modal" data-bs-target="#addProbeModal" class="float-end"><i class="fa-solid fa-plus"></i></a></div>
   <hr class="mb-0" />
   <div class="row">
     {% for probe in probes %}
@@ -22,10 +23,11 @@
             {% endif %}
           </div>
           <div class="card-body">
+            <span class="fw-bold">Networking</span><br />
             IP: {{ probe.ip }}
             {% if probe.knownToHS %}
               {% if probe.routeEnabled %}
-                <button class="badge bg-success-subtle border border-success-subtle text-success-emphasis rounded-pill"
+                <button class="badge text-decoration-underline bg-success-subtle border border-success-subtle text-success-emphasis rounded-pill"
                         data-bs-toggle="modal"
                         data-bs-target="#toggleRouteModal"
                         data-bs-route-id="{{ probe.routeID }}"
@@ -33,7 +35,7 @@
                         data-bs-route="{{ probe.ip }}"
                 >Enabled</button>
               {% else %}
-                <button class="badge bg-danger-subtle border border-danger-subtle text-danger-emphasis rounded-pill"
+                <button class="badge text-decoration-underline bg-danger-subtle border border-danger-subtle text-danger-emphasis rounded-pill"
                         data-bs-toggle="modal"
                         data-bs-target="#toggleRouteModal"
                         data-bs-route-id="{{ probe.routeID }}"
@@ -44,6 +46,22 @@
             {% else %}
               <span class="badge bg-warning-subtle border border-warning-subtle text-warning-emphasis rounded-pill">Unknown</span>
             {% endif %}
+            <hr />
+            <span class="fw-bold">Tests</span><br />
+            iperf3:
+            {% if probe.test_iperf3 %}
+              <span class="badge bg-success-subtle border border-success-subtle text-success-emphasis rounded-pill">Enabled</span>
+            {% else %}
+              <span class="badge bg-danger-subtle border border-danger-subtle text-danger-emphasis rounded-pill">Disabled</span>
+            {% endif %}
+            <br />
+            iperf3 bandwidth limit: {{ probe.test_iperf3_bandwidth|default_if_none:"unlimited" }}
+          </div>
+          <div class="card-footer">
+            <div class="float-end">
+              <button type="button" class="btn btn-sm btn-danger me-2">Delete</button>
+              <button type="button" class="btn btn-sm btn-primary">Edit</button>
+            </div>
           </div>
         </div>
       </div>
@@ -71,6 +89,27 @@
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
             <button id="toggleRouteModalSubmitButton" type="submit" class="btn"></button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="addProbeModal" tabindex="-1" aria-labelledby="addProbeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Create a new probe</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form method="post" action="{% url "add-probe" %}">
+          <div class="modal-body">
+            {% csrf_token %}
+            {% bootstrap_form add_probe_form %}
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-primary">Create probe</button>
           </div>
         </form>
       </div>

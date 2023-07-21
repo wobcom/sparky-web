@@ -4,6 +4,7 @@
 
 from pathlib import Path
 from django.core.exceptions import ImproperlyConfigured
+from ipaddress import IPv6Network, AddressValueError, NetmaskValueError
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -24,7 +25,8 @@ REQUIRED_SETTINGS = [
     "HEADSCALE_API_KEY",
     "PROBE_TAILNET_SUBNET",
     "PROBE_REPO_URL",
-    "PROBE_REPO_ACCESS_TOKEN"
+    "PROBE_REPO_ACCESS_TOKEN",
+    "PROBE_NIXOS_STATE_VERSION",
 ]
 
 for setting in REQUIRED_SETTINGS:
@@ -55,6 +57,16 @@ PROBE_REPO_URL = getattr(configuration, "PROBE_REPO_URL")
 PROBE_REPO_ACCESS_TOKEN = getattr(configuration, "PROBE_REPO_ACCESS_TOKEN")
 
 PROBE_TAILNET_SUBNET = getattr(configuration, "PROBE_TAILNET_SUBNET")
+try:
+    PROBE_TAILNET_SUBNET = IPv6Network(PROBE_TAILNET_SUBNET)
+except (AddressValueError, NetmaskValueError, ValueError):
+    raise ImproperlyConfigured(
+        "The value of 'PROBE_TAILNET_SUBNET' has to be a valid IPv6 subnet."
+    )
+
+PROBE_NIXOS_STATE_VERSION = getattr(configuration, "PROBE_NIXOS_STATE_VERSION")
+
+PROBE_HOSTNAME_PREFIX = getattr(configuration, "PROBE_HOSTNAME_PREFIX", "probe")
 
 DATABASES = {"default": configuration.DATABASE}
 

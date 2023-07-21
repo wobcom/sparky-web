@@ -23,11 +23,39 @@ class Headscale:
 
     @staticmethod
     def enable_route(route_id: int):
-        r = requests.post(
+        requests.post(
             f"{Headscale.headscale_url}/api/v1/routes/{route_id}/enable",
             headers=Headscale.request_headers
         )
         return True
+
+    @staticmethod
+    def expire_probe_pre_auth_key(key: str) -> bool:
+        payload = {
+            "user": "probes",
+            "key": key,
+        }
+        requests.post(
+            f"{Headscale.headscale_url}/api/v1/preauthkey/expire",
+            headers=Headscale.request_headers,
+            json=payload
+        )
+        return True
+
+    @staticmethod
+    def generate_probe_pre_auth_key() -> str:
+        payload = {
+            "user": "probes",
+            "reusable": False,
+            "ephemeral": False,
+            "expiration": (datetime.now(tz=pytz.timezone(TIME_ZONE)) + timedelta(hours=1)).isoformat()
+        }
+        r = requests.post(
+            f"{Headscale.headscale_url}/api/v1/preauthkey",
+            headers=Headscale.request_headers,
+            json=payload
+        )
+        return r.json()['preAuthKey']['key']
 
     @staticmethod
     def get_all_nodes() -> list:
