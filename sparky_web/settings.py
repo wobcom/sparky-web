@@ -16,7 +16,18 @@ except ImportError:
         "Please define sparky_web/configuration.py."
     )
 
-for setting in ["ALLOWED_HOSTS", "DATABASE", "SECRET_KEY", "HEADSCALE_URL", "HEADSCALE_API_KEY"]:
+REQUIRED_SETTINGS = [
+    "ALLOWED_HOSTS",
+    "DATABASE",
+    "SECRET_KEY",
+    "HEADSCALE_URL",
+    "HEADSCALE_API_KEY",
+    "PROBE_TAILNET_SUBNET",
+    "PROBE_REPO_URL",
+    "PROBE_REPO_ACCESS_TOKEN"
+]
+
+for setting in REQUIRED_SETTINGS:
     if not hasattr(configuration, setting):
         raise ImproperlyConfigured(
             f"Mandatory setting {setting} is not in the configuration.py file."
@@ -39,6 +50,11 @@ if API_KEY_EXPIRATION_DAYS_CRITICAL >= API_KEY_EXPIRATION_DAYS_WARNING:
 
 HEADSCALE_URL = getattr(configuration, "HEADSCALE_URL")
 HEADSCALE_API_KEY = getattr(configuration, "HEADSCALE_API_KEY")
+
+PROBE_REPO_URL = getattr(configuration, "PROBE_REPO_URL")
+PROBE_REPO_ACCESS_TOKEN = getattr(configuration, "PROBE_REPO_ACCESS_TOKEN")
+
+PROBE_TAILNET_SUBNET = getattr(configuration, "PROBE_TAILNET_SUBNET")
 
 DATABASES = {"default": configuration.DATABASE}
 

@@ -5,11 +5,22 @@ from django.contrib.auth import authenticate, login, logout
 from django.views.generic import View
 from django.contrib import messages
 from django.urls import reverse
-from django.http import HttpResponseRedirect, HttpRequest
+from django.http import HttpResponseRedirect, HttpRequest, JsonResponse
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
 from web.lib import Headscale
 from web.forms import ToggleRouteForm
-from sparky_web.settings import API_KEY_EXPIRATION_DAYS_WARNING, API_KEY_EXPIRATION_DAYS_CRITICAL
+from web.models import Probe
+from sparky_web.settings import \
+    API_KEY_EXPIRATION_DAYS_WARNING, \
+    API_KEY_EXPIRATION_DAYS_CRITICAL, \
+    PROBE_REPO_URL, \
+    PROBE_REPO_ACCESS_TOKEN
 
+
+@method_decorator(csrf_exempt, name='dispatch')
+class APIView(View):
+    pass
 
 class BaseView(LoginRequiredMixin, View):
     login_url = '/login/'
@@ -99,3 +110,56 @@ class InfraView(BaseView):
         nodes = Headscale.get_all_infra()
         print("infra")
         return render(request, "web/infra.html", {"nodes": nodes})
+
+
+class APIProbeInitView(APIView):
+    def post(self, request: HttpRequest):
+        mac = request.POST.get("mac")
+        probe = Probe.objects.filter(mac_address=mac)
+        if not probe:
+            data = {
+                "status": "unauthorized",
+                "message": "Invalid MAC address"
+            }
+            return JsonResponse(data, status=403)
+        probe = probe[0]
+        if probe.is_registered:
+            data = {
+                "status": "unauthorized",
+                "message": "Probe is already registered"
+            }
+            return JsonResponse(data, status=403)
+        probe.is_registered = True
+        probe.save()
+        data = {
+            "status": "ok",
+            "data": {
+                "hostname": probe.hostname,
+                "repo-url": PROBE_REPO_URL,
+                "access-token": PROBE_REPO_ACCESS_TOKEN,
+                "api-key": probe.api_key,
+            }
+        }
+        return JsonResponse(data)
+
+
+class APIProbeUpdateView(APIView):
+    def post(self, request: HttpRequest):
+        api_key = request.POST.get("api-key")
+        probe = Probe.objects.filter(api_key=api_key)
+        if not probe:
+            data = {
+                "status": "unauthorized",
+                "message": "Invalid API Key"
+            }
+            return JsonResponse(data, status=403)
+        probe = probe[0]
+        data = {
+            "status": "ok",
+            "data": {
+                "hostname": probe.hostname,
+                "repo-url": PROBE_REPO_URL,
+                "access-token": PROBE_REPO_ACCESS_TOKEN,
+            }
+        }
+        return JsonResponse(data)
