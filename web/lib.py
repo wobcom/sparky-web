@@ -1,4 +1,6 @@
+from django.forms.models import model_to_dict
 from sparky_web.settings import HEADSCALE_URL, HEADSCALE_API_KEY, TIME_ZONE
+from web.models import Probe
 from datetime import datetime, timedelta
 import pytz
 import requests
@@ -33,6 +35,13 @@ class Headscale:
         return r.json()['machines']
 
     @staticmethod
+    def get_all_infra() -> list:
+        nodes = Headscale.get_all_nodes()
+        nodes = list(filter(lambda x: x['user']['name'] != 'probes', nodes))
+        nodes = Headscale.map_routes_to_nodes(nodes)
+        return nodes
+
+    @staticmethod
     def get_all_probes() -> list:
         nodes = Headscale.get_all_nodes()
         probes = list(filter(lambda x: x['user']['name'] == 'probes', nodes))
@@ -40,11 +49,24 @@ class Headscale:
         return probes
 
     @staticmethod
-    def get_all_infra() -> list:
-        nodes = Headscale.get_all_nodes()
-        nodes = list(filter(lambda x: x['user']['name'] != 'probes', nodes))
-        nodes = Headscale.map_routes_to_nodes(nodes)
-        return nodes
+    def get_all_probes_with_live_data() -> list:
+        probes_db = Probe.objects.all()
+        probes_hs = Headscale.get_all_probes()
+        probes = list()
+        for probe_db in probes_db:
+            probe = model_to_dict(probe_db)
+            probe['knownToHS'] = False
+            for probe_hs in probes_hs:
+                if probe_db.hostname == probe_hs['name']:
+                    probe['knownToHS'] = True
+                    probe['online'] = probe_hs['online']
+                    probe['routeEnabled'] = probe_hs['routeEnabled']
+                    probe['routeEnabled'] = probe_hs['routeEnabled']
+                    probe['routeID'] = probe_hs['routeID']
+                    probes_hs.remove(probe_hs)
+                    break
+            probes.append(probe)
+        return probes
 
     @staticmethod
     def get_all_routes():
@@ -70,4 +92,5 @@ class Headscale:
                     node['routeEnabled'] = route['enabled']
                     node['routeID'] = route['id']
                     routes.remove(route)
+                    break
         return nodes

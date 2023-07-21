@@ -10,32 +10,39 @@
       <div class="col-sm-6 mt-4">
         <div class="card">
           <div class="card-header">
-            <span class="float-start">{{ probe.name }}</span>
-            {% if probe.online %}
-              <span class="float-end badge bg-success-subtle border border-success-subtle text-success-emphasis rounded-pill">Online</span>
+            <span class="float-start">{{ probe.hostname }}</span>
+            {% if probe.knownToHS %}
+              {% if probe.online %}
+                <span class="float-end badge bg-success-subtle border border-success-subtle text-success-emphasis rounded-pill">Online</span>
+              {% else %}
+                <span class="float-end badge bg-danger-subtle border border-danger-subtle text-danger-emphasis rounded-pill">Offline</span>
+              {% endif %}
             {% else %}
-              <span class="float-end badge bg-danger-subtle border border-danger-subtle text-danger-emphasis rounded-pill">Offline</span>
+              <span class="float-end badge bg-warning-subtle border border-warning-subtle text-warning-emphasis rounded-pill">Unknown</span>
             {% endif %}
           </div>
           <div class="card-body">
-            Internal IP: {{ probe.ipAddresses|first }} <br />
-            IP: {{ probe.route|slice:":-4" }}
-            {% if probe.routeEnabled %}
-              <button class="badge bg-success-subtle border border-success-subtle text-success-emphasis rounded-pill"
-                      data-bs-toggle="modal"
-                      data-bs-target="#toggleRouteModal"
-                      data-bs-route-id="{{ probe.routeID }}"
-                      data-bs-route-enabled="{{ probe.routeEnabled }}"
-                      data-bs-route="{{ probe.route|slice:":-4" }}"
-              >Enabled</button>
+            IP: {{ probe.ip }}
+            {% if probe.knownToHS %}
+              {% if probe.routeEnabled %}
+                <button class="badge bg-success-subtle border border-success-subtle text-success-emphasis rounded-pill"
+                        data-bs-toggle="modal"
+                        data-bs-target="#toggleRouteModal"
+                        data-bs-route-id="{{ probe.routeID }}"
+                        data-bs-route-enabled="{{ probe.routeEnabled }}"
+                        data-bs-route="{{ probe.ip }}"
+                >Enabled</button>
+              {% else %}
+                <button class="badge bg-danger-subtle border border-danger-subtle text-danger-emphasis rounded-pill"
+                        data-bs-toggle="modal"
+                        data-bs-target="#toggleRouteModal"
+                        data-bs-route-id="{{ probe.routeID }}"
+                        data-bs-route-enabled="{{ probe.routeEnabled }}"
+                        data-bs-route="{{ probe.ip }}"
+                >Disabled</button>
+              {% endif %}
             {% else %}
-              <button class="badge bg-danger-subtle border border-danger-subtle text-danger-emphasis rounded-pill"
-                      data-bs-toggle="modal"
-                      data-bs-target="#toggleRouteModal"
-                      data-bs-route-id="{{ probe.routeID }}"
-                      data-bs-route-enabled="{{ probe.routeEnabled }}"
-                      data-bs-route="{{ probe.route|slice:":-4" }}"
-              >Disabled</button>
+              <span class="badge bg-warning-subtle border border-warning-subtle text-warning-emphasis rounded-pill">Unknown</span>
             {% endif %}
           </div>
         </div>

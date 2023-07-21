@@ -85,7 +85,7 @@ class LogoutView(View):
 
 class ProbesView(BaseView):
     def get(self, request: HttpRequest):
-        probes = Headscale.get_all_probes()
+        probes = Headscale.get_all_probes_with_live_data()
         toggle_route_form = ToggleRouteForm()
         return render(request, "web/probes.html", {"probes": probes, "toggle_route_form": toggle_route_form})
 
