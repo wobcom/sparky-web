@@ -16,7 +16,7 @@ class ProbeSettingsForm(forms.Form):
         widget=forms.CheckboxInput(attrs={'checked': 'true'})
     )
     iperf3_bandwidth_limit = forms.CharField(
-        label="iperf3 bandwidht limit (optional)",
+        label="iperf3 bandwidth limit (optional)",
         widget=forms.TextInput(attrs={'placeholder': '100M'}),
         required=False,
         validators=[
