@@ -1,6 +1,5 @@
 django
 django-bootstrap5
-python-dateutil
 fontawesomefree
 pytz
 requests
