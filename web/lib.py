@@ -1,9 +1,18 @@
+from django.contrib.auth.models import User
 from django.forms.models import model_to_dict
-from sparky_web.settings import HEADSCALE_URL, HEADSCALE_API_KEY, TIME_ZONE
+from sparky_web.settings import \
+    HEADSCALE_URL, \
+    HEADSCALE_API_KEY, \
+    TIME_ZONE, \
+    PROBE_NIXOS_STATE_VERSION, \
+    PROBE_REPO_LOCAL_PATH
 from web.models import Probe
 from datetime import datetime, timedelta
+from git import Repo, Actor
 import pytz
 import requests
+import json
+import os
 
 
 class Headscale:
@@ -138,3 +147,47 @@ class Headscale:
                     routes.remove(route)
                     break
         return nodes
+
+
+class ProbeRepo:
+    @staticmethod
+    def commit_probe_config(probe: Probe, user: User):
+        probe_nixos_config = {
+            "config": {
+                "networking": {
+                    "hostName": probe.hostname
+                },
+                "profiles": {
+                    "probe": {
+                        "enable": True,
+                        "ip": probe.ip,
+                        "preAuthKey": probe.pre_auth_key,
+                        "iperf3": {
+                            "enable": probe.test_iperf3,
+                            "bandwidthLimit": probe.test_iperf3_bandwidth
+                        }
+                    }
+                },
+                "system": {
+                    "stateVersion": PROBE_NIXOS_STATE_VERSION
+                }
+            }
+        }
+        author = Actor(f"{user.username} (SPARKY-Web)", user.email)
+        repo = Repo(PROBE_REPO_LOCAL_PATH)
+        repo.remote().pull(rebase=True)
+        with open(f"{PROBE_REPO_LOCAL_PATH}/probes/{probe.hostname}.json", "w") as file:
+            file.write(json.dumps(probe_nixos_config, indent=4))
+        repo.index.add(f"probes/{probe.hostname}.json")
+        repo.index.commit(f"SPARKY-Web: (re-)generate {probe.hostname}", author=author, committer=author)
+        repo.remote().push().raise_if_error()
+
+    @staticmethod
+    def remove_probe_config(probe: Probe, user: User):
+        author = Actor(f"{user.username} (SPARKY-Web)", user.email)
+        repo = Repo(PROBE_REPO_LOCAL_PATH)
+        repo.remote().pull(rebase=True)
+        os.remove(f"{PROBE_REPO_LOCAL_PATH}/probes/{probe.hostname}.json")
+        repo.index.remove(f"probes/{probe.hostname}.json")
+        repo.index.commit(f"SPARKY-Web: remove {probe.hostname}", author=author, committer=author)
+        repo.remote().push().raise_if_error()

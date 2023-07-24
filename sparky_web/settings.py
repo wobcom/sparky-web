@@ -27,6 +27,7 @@ REQUIRED_SETTINGS = [
     "PROBE_REPO_URL",
     "PROBE_REPO_ACCESS_TOKEN",
     "PROBE_NIXOS_STATE_VERSION",
+    "PROBE_REPO_LOCAL_PATH",
 ]
 
 for setting in REQUIRED_SETTINGS:
@@ -65,6 +66,8 @@ except (AddressValueError, NetmaskValueError, ValueError):
     )
 
 PROBE_NIXOS_STATE_VERSION = getattr(configuration, "PROBE_NIXOS_STATE_VERSION")
+
+PROBE_REPO_LOCAL_PATH = getattr(configuration, "PROBE_REPO_LOCAL_PATH")
 
 PROBE_HOSTNAME_PREFIX = getattr(configuration, "PROBE_HOSTNAME_PREFIX", "probe")
 

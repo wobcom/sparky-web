@@ -9,7 +9,7 @@ from django.urls import reverse
 from django.http import HttpResponseRedirect, HttpRequest, JsonResponse
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
-from web.lib import Headscale
+from web.lib import Headscale, ProbeRepo
 from web.forms import \
     AddProbeForm, \
     DeleteProbeForm, \
@@ -161,6 +161,11 @@ class AddProbeView(BaseView):
                 "Probe with this name, IP or MAC-Address already exists. Please check your inputs and try again."
             )
             return HttpResponseRedirect(reverse("probes"))
+        try:
+            ProbeRepo.commit_probe_config(probe, request.user)
+        except Exception:
+            messages.add_message(request, messages.ERROR, "Error while adding the probe to the config repo.")
+            return HttpResponseRedirect(reverse("probes"))
         return HttpResponseRedirect(reverse("probes"))
 
 
@@ -173,6 +178,11 @@ class DeleteProbeView(BaseView):
         probe = Probe.objects.get(pk=form.cleaned_data['probe_id'])
         hostname = probe.hostname
         pre_auth_key = probe.pre_auth_key
+        try:
+            ProbeRepo.remove_probe_config(probe, request.user)
+        except Exception:
+            messages.add_message(request, messages.ERROR, "Error while removing the probe from the config repo.")
+            return HttpResponseRedirect(reverse("probes"))
         Headscale.expire_probe_pre_auth_key(pre_auth_key)
         Headscale.delete_node(hostname)
         probe.delete()
@@ -193,6 +203,11 @@ class EditProbeView(BaseView):
             bandwidth_limit = None
         probe.test_iperf3_bandwidth = bandwidth_limit
         probe.save()
+        try:
+            ProbeRepo.commit_probe_config(probe, request.user)
+        except Exception:
+            messages.add_message(request, messages.ERROR, "Error while editing the probe in the config repo.")
+            return HttpResponseRedirect(reverse("probes"))
         messages.add_message(request, messages.SUCCESS, f"Edited probe {probe.hostname}")
         return HttpResponseRedirect(reverse("probes"))
 
