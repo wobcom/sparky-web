@@ -10,7 +10,11 @@ from django.http import HttpResponseRedirect, HttpRequest, JsonResponse
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from web.lib import Headscale
-from web.forms import AddProbeForm, ToggleRouteForm
+from web.forms import \
+    AddProbeForm, \
+    DeleteProbeForm, \
+    EditProbeForm, \
+    ToggleRouteForm
 from web.models import Probe
 import random
 import string
@@ -94,6 +98,8 @@ class ProbesView(BaseView):
     def get(self, request: HttpRequest):
         probes = Headscale.get_all_probes_with_live_data()
         add_probe_form = AddProbeForm()
+        delete_probe_form = DeleteProbeForm()
+        edit_probe_form = EditProbeForm()
         toggle_route_form = ToggleRouteForm()
         return render(
             request,
@@ -101,6 +107,8 @@ class ProbesView(BaseView):
             {
                 "probes": probes,
                 "add_probe_form": add_probe_form,
+                "delete_probe_form": delete_probe_form,
+                "edit_probe_form": edit_probe_form,
                 "toggle_route_form": toggle_route_form,
             }
         )
@@ -154,6 +162,40 @@ class AddProbeView(BaseView):
             )
             return HttpResponseRedirect(reverse("probes"))
         return HttpResponseRedirect(reverse("probes"))
+
+
+class DeleteProbeView(BaseView):
+    def post(self, request: HttpRequest):
+        form = DeleteProbeForm(data=request.POST)
+        if not form.is_valid():
+            messages.add_message(request, messages.ERROR, "Form invalid")
+            return HttpResponseRedirect(reverse("probes"))
+        probe = Probe.objects.get(pk=form.cleaned_data['probe_id'])
+        hostname = probe.hostname
+        pre_auth_key = probe.pre_auth_key
+        Headscale.expire_probe_pre_auth_key(pre_auth_key)
+        Headscale.delete_node(hostname)
+        probe.delete()
+        messages.add_message(request, messages.SUCCESS, f"Deleted probe {hostname}")
+        return HttpResponseRedirect(reverse("probes"))
+
+
+class EditProbeView(BaseView):
+    def post(self, request: HttpRequest):
+        form = EditProbeForm(data=request.POST)
+        if not form.is_valid():
+            messages.add_message(request, messages.ERROR, "Form invalid")
+            return HttpResponseRedirect(reverse("probes"))
+        probe = Probe.objects.get(pk=form.cleaned_data['probe_id'])
+        probe.test_iperf3 = form.cleaned_data["iperf3_enabled"]
+        bandwidth_limit = form.cleaned_data['iperf3_bandwidth_limit']
+        if not bandwidth_limit:
+            bandwidth_limit = None
+        probe.test_iperf3_bandwidth = bandwidth_limit
+        probe.save()
+        messages.add_message(request, messages.SUCCESS, f"Edited probe {probe.hostname}")
+        return HttpResponseRedirect(reverse("probes"))
+
 
 class ToggleRouteView(BaseView):
     def post(self, request: HttpRequest):

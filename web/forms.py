@@ -9,13 +9,7 @@ class ToggleRouteForm(forms.Form):
     route_enabled.widget = route_enabled.hidden_widget()
 
 
-class AddProbeForm(forms.Form):
-    mac_address = forms.CharField(
-        label="MAC address of the probe",
-        max_length=17,
-        min_length=12,
-        widget=forms.TextInput(attrs={'placeholder': 'aa:bb:cc:dd:ee:ff'})
-    )
+class ProbeSettingsForm(forms.Form):
     iperf3_enabled = forms.BooleanField(
         label="Enable iperf3 tests",
         required=False,
@@ -33,3 +27,23 @@ class AddProbeForm(forms.Form):
             )
         ]
     )
+
+
+class AddProbeForm(ProbeSettingsForm):
+    field_order = ['mac_address', 'iperf3_enabled', 'iperf3_bandwidth_limit']
+    mac_address = forms.CharField(
+        label="MAC address of the probe",
+        max_length=17,
+        min_length=12,
+        widget=forms.TextInput(attrs={'placeholder': 'aa:bb:cc:dd:ee:ff'})
+    )
+
+
+class DeleteProbeForm(forms.Form):
+    probe_id = forms.IntegerField()
+    probe_id.widget = probe_id.hidden_widget()
+
+
+class EditProbeForm(ProbeSettingsForm):
+    probe_id = forms.IntegerField()
+    probe_id.widget = probe_id.hidden_widget()

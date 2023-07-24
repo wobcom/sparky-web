@@ -14,6 +14,22 @@ class Headscale:
     }
 
     @staticmethod
+    def delete_node(node_name: str) -> bool:
+        nodes = Headscale.get_all_nodes()
+        node = list(filter(lambda x: x['name'] == node_name, nodes))
+        if not node:
+            return False
+
+        node = node[0]
+        node_id = node['id']
+
+        requests.delete(
+            f"{Headscale.headscale_url}/api/v1/machine/{node_id}",
+            headers=Headscale.request_headers
+        )
+        return True
+
+    @staticmethod
     def disable_route(route_id: int):
         r = requests.post(
             f"{Headscale.headscale_url}/api/v1/routes/{route_id}/disable",
@@ -78,7 +94,7 @@ class Headscale:
 
     @staticmethod
     def get_all_probes_with_live_data() -> list:
-        probes_db = Probe.objects.all()
+        probes_db = Probe.objects.all().order_by('hostname')
         probes_hs = Headscale.get_all_probes()
         probes = list()
         for probe_db in probes_db:

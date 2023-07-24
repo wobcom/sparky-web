@@ -59,8 +59,22 @@
           </div>
           <div class="card-footer">
             <div class="float-end">
-              <button type="button" class="btn btn-sm btn-danger me-2">Delete</button>
-              <button type="button" class="btn btn-sm btn-primary">Edit</button>
+              <button type="button"
+                      class="btn btn-sm btn-danger me-2"
+                      data-bs-toggle="modal"
+                      data-bs-target="#deleteProbeModal"
+                      data-bs-probe-id="{{ probe.id }}"
+                      data-bs-probe-name="{{ probe.hostname }}"
+              >Delete</button>
+              <button type="button"
+                      class="btn btn-sm btn-primary"
+                      data-bs-toggle="modal"
+                      data-bs-target="#editProbeModal"
+                      data-bs-probe-id="{{ probe.id }}"
+                      data-bs-probe-name="{{ probe.hostname }}"
+                      data-bs-test-iperf3-enabled="{{ probe.test_iperf3 }}"
+                      data-bs-test-iperf3-bandwidth="{{ probe.test_iperf3_bandwidth|default_if_none:"" }}"
+              >Edit</button>
             </div>
           </div>
         </div>
@@ -110,6 +124,49 @@
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
             <button type="submit" class="btn btn-primary">Create probe</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="deleteProbeModal" tabindex="-1" aria-labelledby="deleteProbeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="deleteProbeModalLabel"></h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form method="post" action="{% url "delete-probe" %}">
+          <div class="modal-body">
+            <span id="deleteProbeModalInfoText"></span>
+            {% csrf_token %}
+            <input type="hidden" id="deleteProbeModalProbeID" name="probe_id">
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-danger">Delete probe</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+    <div class="modal fade" id="editProbeModal" tabindex="-1" aria-labelledby="editProbeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="editProbeModalLabel"></h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form method="post" action="{% url "edit-probe" %}">
+          <div class="modal-body">
+            {% csrf_token %}
+            {% bootstrap_form edit_probe_form %}
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-primary">Save</button>
           </div>
         </form>
       </div>
