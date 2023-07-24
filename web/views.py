@@ -215,7 +215,6 @@ class ToggleRouteView(BaseView):
 class InfraView(BaseView):
     def get(self, request: HttpRequest):
         nodes = Headscale.get_all_infra()
-        print("infra")
         return render(request, "web/infra.html", {"nodes": nodes})
 
 
