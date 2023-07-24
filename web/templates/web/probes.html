@@ -46,6 +46,8 @@
             {% else %}
               <span class="badge bg-warning-subtle border border-warning-subtle text-warning-emphasis rounded-pill">Unknown</span>
             {% endif %}
+            <br />
+            MAC: {{ probe.mac_address }}
             <hr />
             <span class="fw-bold">Tests</span><br />
             iperf3:
