@@ -3,6 +3,7 @@ ALLOWED_HOSTS = []
 
 # PostgreSQL database configuration
 DATABASE = {
+    "ENGINE": "django.db.backends.postgresql_psycopg2",
     "NAME": "sparky_web",         # Database name
     "USER": "sparky_web",         # PostgreSQL username
     "PASSWORD": "sparky_web",     # PostgreSQL password
