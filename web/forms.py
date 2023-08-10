@@ -1,5 +1,6 @@
 from django import forms
 from django.core.validators import RegexValidator
+from web.models import ProbeHardware
 
 
 class ToggleRouteForm(forms.Form):
@@ -30,7 +31,13 @@ class ProbeSettingsForm(forms.Form):
 
 
 class AddProbeForm(ProbeSettingsForm):
-    field_order = ['mac_address', 'iperf3_enabled', 'iperf3_bandwidth_limit']
+    field_order = ['hardware', 'mac_address', 'iperf3_enabled', 'iperf3_bandwidth_limit']
+    hardware = forms.ModelChoiceField(
+        label="Probe hardware",
+        queryset=ProbeHardware.objects.all(),
+        to_field_name="id",
+        widget=forms.Select()
+    )
     mac_address = forms.CharField(
         label="MAC address of the probe",
         max_length=17,

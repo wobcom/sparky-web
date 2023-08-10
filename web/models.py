@@ -2,11 +2,21 @@ from django.db import models
 from django.core.validators import MinLengthValidator, RegexValidator
 
 
+class ProbeHardware(models.Model):
+
+    def __str__(self):
+        return self.display_name
+
+    slug = models.CharField(max_length=10, unique=True)
+    display_name = models.CharField(max_length=50)
+
+
 class Probe(models.Model):
     def __str__(self):
         return self.hostname
 
     hostname = models.CharField(max_length=30, unique=True)
+    hardware = models.ForeignKey(ProbeHardware, on_delete=models.CASCADE)
     ip = models.GenericIPAddressField("Tailnet IP", protocol="ipv6", unique=True)
     pre_auth_key = models.CharField(
         "Tailnet PreAuthKey",

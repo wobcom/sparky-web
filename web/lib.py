@@ -109,6 +109,7 @@ class Headscale:
         for probe_db in probes_db:
             probe = model_to_dict(probe_db)
             probe['knownToHS'] = False
+            probe['hwDisplayName'] = probe_db.hardware.display_name
             for probe_hs in probes_hs:
                 if probe_db.hostname == probe_hs['name']:
                     probe['knownToHS'] = True
@@ -176,9 +177,9 @@ class ProbeRepo:
         author = Actor(f"{user.username} (SPARKY-Web)", user.email)
         repo = Repo(PROBE_REPO_LOCAL_PATH)
         repo.remote().pull(rebase=True)
-        with open(f"{PROBE_REPO_LOCAL_PATH}/probes/{probe.hostname}.json", "w") as file:
+        with open(f"{PROBE_REPO_LOCAL_PATH}/probes/{probe.hostname}_{probe.hardware.slug}.json", "w") as file:
             file.write(json.dumps(probe_nixos_config, indent=4))
-        repo.index.add(f"probes/{probe.hostname}.json")
+        repo.index.add(f"probes/{probe.hostname}_{probe.hardware.slug}.json")
         repo.index.commit(f"SPARKY-Web: (re-)generate {probe.hostname}", author=author, committer=author)
         repo.remote().push().raise_if_error()
 
@@ -187,7 +188,7 @@ class ProbeRepo:
         author = Actor(f"{user.username} (SPARKY-Web)", user.email)
         repo = Repo(PROBE_REPO_LOCAL_PATH)
         repo.remote().pull(rebase=True)
-        os.remove(f"{PROBE_REPO_LOCAL_PATH}/probes/{probe.hostname}.json")
-        repo.index.remove(f"probes/{probe.hostname}.json")
+        os.remove(f"{PROBE_REPO_LOCAL_PATH}/probes/{probe.hostname}_{probe.hardware.slug}.json")
+        repo.index.remove(f"probes/{probe.hostname}_{probe.hardware.slug}.json")
         repo.index.commit(f"SPARKY-Web: remove {probe.hostname}", author=author, committer=author)
         repo.remote().push().raise_if_error()

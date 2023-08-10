@@ -23,6 +23,9 @@
             {% endif %}
           </div>
           <div class="card-body">
+            <span class="fw-bold">Hardware</span><br />
+            {{ probe.hwDisplayName }}
+            <hr />
             <span class="fw-bold">Networking</span><br />
             IP: {{ probe.ip }}
             {% if probe.knownToHS %}

@@ -15,7 +15,7 @@ from web.forms import \
     DeleteProbeForm, \
     EditProbeForm, \
     ToggleRouteForm
-from web.models import Probe
+from web.models import Probe, ProbeHardware
 import random
 import string
 import macaddress
@@ -144,6 +144,7 @@ class AddProbeView(BaseView):
         if not bandwidth_limit:
             bandwidth_limit = None
         probe = Probe()
+        probe.hardware = form.cleaned_data['hardware']
         probe.hostname = PROBE_HOSTNAME_PREFIX + next_probe_no
         probe.ip = next_probe_ip
         probe.pre_auth_key = pre_auth_key
