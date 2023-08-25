@@ -87,7 +87,7 @@ except (IOError, Exception):
     BASE_TZ = "UTC"
 TIME_ZONE = getattr(configuration, "TIME_ZONE", BASE_TZ).rstrip()
 
-VERSION = '1.2.0'
+VERSION = '1.3.0'
 
 # Application definition
 
