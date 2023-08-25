@@ -159,7 +159,7 @@ class ProbeRepo:
                     "hostName": probe.hostname
                 },
                 "profiles": {
-                    "probe": {
+                    "sparky-probe": {
                         "enable": True,
                         "ip": probe.ip,
                         "preAuthKey": probe.pre_auth_key,
