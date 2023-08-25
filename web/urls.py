@@ -13,5 +13,6 @@ urlpatterns = [
     path("logout/", views.LogoutView.as_view(), name="logout"),
     path("routes/toggle", views.ToggleRouteView.as_view(), name="toggle-route"),
     path("api/v1/probe-init", views.APIProbeInitView.as_view(), name="api-probe-init"),
-    path("api/v1/probe-update", views.APIProbeUpdateView.as_view(), name="api-probe-update")
+    path("api/v1/probe-update", views.APIProbeUpdateView.as_view(), name="api-probe-update"),
+    path("api/v1/metrics-bearer-update", views.APIMetricsBearerUpdateView.as_view(), name="api-metrics-bearer-update"),
 ]

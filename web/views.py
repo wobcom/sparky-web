@@ -25,7 +25,8 @@ from sparky_web.settings import \
     PROBE_REPO_URL, \
     PROBE_REPO_ACCESS_TOKEN, \
     PROBE_TAILNET_SUBNET, \
-    PROBE_HOSTNAME_PREFIX
+    PROBE_HOSTNAME_PREFIX, \
+    METRICS_API_KEY
 
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -140,6 +141,7 @@ class AddProbeView(BaseView):
         next_probe_ip = str(next(next_probe_ip))
         pre_auth_key = Headscale.generate_probe_pre_auth_key()
         api_key = ''.join(random.choices(string.ascii_letters + string.digits, k=32))
+        metrics_bearer = ''.join(random.choices(string.ascii_letters + string.digits, k=32))
         bandwidth_limit = form.cleaned_data['iperf3_bandwidth_limit']
         if not bandwidth_limit:
             bandwidth_limit = None
@@ -148,6 +150,7 @@ class AddProbeView(BaseView):
         probe.hostname = PROBE_HOSTNAME_PREFIX + next_probe_no
         probe.ip = next_probe_ip
         probe.pre_auth_key = pre_auth_key
+        probe.metrics_bearer = metrics_bearer
         probe.api_key = api_key
         probe.mac_address = mac
         probe.test_iperf3 = form.cleaned_data['iperf3_enabled']
@@ -260,6 +263,7 @@ class APIProbeInitView(APIView):
                 "repo-url": PROBE_REPO_URL,
                 "access-token": PROBE_REPO_ACCESS_TOKEN,
                 "api-key": probe.api_key,
+                "metrics-bearer": probe.metrics_bearer,
             }
         }
         return JsonResponse(data)
@@ -282,6 +286,33 @@ class APIProbeUpdateView(APIView):
                 "hostname": probe.hostname,
                 "repo-url": PROBE_REPO_URL,
                 "access-token": PROBE_REPO_ACCESS_TOKEN,
+                "metrics-bearer": probe.metrics_bearer,
+            }
+        }
+        return JsonResponse(data)
+
+
+class APIMetricsBearerUpdateView(APIView):
+    def post(self, request: HttpRequest):
+        metrics_api_key = request.POST.get("metrics-api-key")
+        if metrics_api_key != METRICS_API_KEY:
+            data = {
+                "status": "unauthorized",
+                "message": "Invalid Metrics API Key"
+            }
+            return JsonResponse(data, status=403)
+        probes = Probe.objects.all()
+        bearer_data = list()
+        for probe in probes:
+            probe_bearer_data = {
+                "bearer_token": probe.metrics_bearer,
+                "url_prefix": f"http://localhost:8428/api/v1/write?extra_label=instance={probe.hostname}"
+            }
+            bearer_data.append(probe_bearer_data)
+        data = {
+            "status": "ok",
+            "data": {
+                "users": bearer_data
             }
         }
         return JsonResponse(data)

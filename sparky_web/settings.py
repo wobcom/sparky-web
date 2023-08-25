@@ -28,6 +28,7 @@ REQUIRED_SETTINGS = [
     "PROBE_REPO_ACCESS_TOKEN",
     "PROBE_NIXOS_STATE_VERSION",
     "PROBE_REPO_LOCAL_PATH",
+    "METRICS_API_KEY",
 ]
 
 for setting in REQUIRED_SETTINGS:
@@ -41,6 +42,8 @@ DATABASE = getattr(configuration, "DATABASE")
 SECRET_KEY = getattr(configuration, "SECRET_KEY")
 
 DEBUG = getattr(configuration, "DEBUG", False)
+
+METRICS_API_KEY = getattr(configuration, "METRICS_API_KEY")
 
 API_KEY_EXPIRATION_DAYS_WARNING = getattr(configuration, "API_KEY_EXPIRATION_DAYS_WARNING", 30)
 API_KEY_EXPIRATION_DAYS_CRITICAL = getattr(configuration, "API_KEY_EXPIRATION_DAYS_CRITICAL", 15)

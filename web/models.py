@@ -39,6 +39,12 @@ class Probe(models.Model):
         ]
     )
     api_key = models.CharField("API Key", max_length=32, validators=[MinLengthValidator(32)], unique=True)
+    metrics_bearer = models.CharField(
+        "Metrics bearer token",
+        max_length=32,
+        validators=[MinLengthValidator(32)],
+        unique=True
+    )
     test_iperf3 = models.BooleanField(default=True)
     test_iperf3_bandwidth = models.CharField(
         max_length=5,

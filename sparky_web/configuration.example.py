@@ -23,6 +23,8 @@ PROBE_TAILNET_SUBNET = "fdb0:2a3d:2a4e:3::/64"
 
 PROBE_HOSTNAME_PREFIX = "probe"
 
+METRICS_API_KEY = "long and secure key for the metrics host to fetch the bearer tokens"
+
 PROBE_REPO_LOCAL_PATH = "/path/to/your/probe/repo"
 
 TIME_ZONE = 'Europe/Berlin'
