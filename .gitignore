@@ -6,3 +6,4 @@ venv
 *.pyc
 __pycache__
 sparky_web/configuration.py
+sparky_web/ldap_config.py

@@ -87,6 +87,30 @@ except (IOError, Exception):
     BASE_TZ = "UTC"
 TIME_ZONE = getattr(configuration, "TIME_ZONE", BASE_TZ).rstrip()
 
+try:
+    from sparky_web.ldap_config import *
+
+    LDAP_CONFIGURED = True
+except ImportError:
+    LDAP_CONFIGURED = False
+
+# If LDAP is configured, load the config
+if LDAP_CONFIGURED:
+    try:
+        import django_auth_ldap
+        import ldap
+
+        # Prepend LDAPBackend to the default ModelBackend
+        AUTHENTICATION_BACKENDS = [
+            "django_auth_ldap.backend.LDAPBackend",
+        ]
+    except ImportError:
+        raise ImproperlyConfigured(
+            "LDAP authentication has been configured, but django-auth-ldap is not "
+            "installed. You can remove sparky_web/ldap_config.py to disable "
+            "LDAP."
+        )
+
 VERSION = '1.3.0'
 
 # Application definition
