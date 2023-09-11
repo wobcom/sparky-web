@@ -111,7 +111,7 @@ if LDAP_CONFIGURED:
             "LDAP."
         )
 
-VERSION = '1.4.0'
+VERSION = '1.5.0'
 
 # Application definition
 
