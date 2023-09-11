@@ -155,6 +155,9 @@ class AddProbeView(BaseView):
         probe.mac_address = mac
         probe.test_iperf3 = form.cleaned_data['iperf3_enabled']
         probe.test_iperf3_bandwidth = bandwidth_limit
+        probe.test_blackbox = form.cleaned_data['blackbox_enabled']
+        probe.test_traceroute = form.cleaned_data['traceroute_enabled']
+        probe.test_smokeping = form.cleaned_data['smokeping_enabled']
         try:
             probe.save()
         except IntegrityError:
@@ -206,6 +209,9 @@ class EditProbeView(BaseView):
         if not bandwidth_limit:
             bandwidth_limit = None
         probe.test_iperf3_bandwidth = bandwidth_limit
+        probe.test_blackbox = form.cleaned_data['blackbox_enabled']
+        probe.test_traceroute = form.cleaned_data['traceroute_enabled']
+        probe.test_smokeping = form.cleaned_data['smokeping_enabled']
         probe.save()
         try:
             ProbeRepo.commit_probe_config(probe, request.user)

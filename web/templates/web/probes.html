@@ -61,6 +61,27 @@
             {% endif %}
             <br />
             iperf3 bandwidth limit: {{ probe.test_iperf3_bandwidth|default_if_none:"unlimited" }}
+            <br />
+            Blackbox HTTP(S) tests:
+            {% if probe.test_blackbox %}
+              <span class="badge bg-success-subtle border border-success-subtle text-success-emphasis rounded-pill">Enabled</span>
+            {% else %}
+              <span class="badge bg-danger-subtle border border-danger-subtle text-danger-emphasis rounded-pill">Disabled</span>
+            {% endif %}
+            <br />
+            Traceroute tests:
+            {% if probe.test_traceroute %}
+              <span class="badge bg-success-subtle border border-success-subtle text-success-emphasis rounded-pill">Enabled</span>
+            {% else %}
+              <span class="badge bg-danger-subtle border border-danger-subtle text-danger-emphasis rounded-pill">Disabled</span>
+            {% endif %}
+            <br />
+            Smokeping tests:
+            {% if probe.test_smokeping %}
+              <span class="badge bg-success-subtle border border-success-subtle text-success-emphasis rounded-pill">Enabled</span>
+            {% else %}
+              <span class="badge bg-danger-subtle border border-danger-subtle text-danger-emphasis rounded-pill">Disabled</span>
+            {% endif %}
           </div>
           <div class="card-footer">
             <div class="float-end">

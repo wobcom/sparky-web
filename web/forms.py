@@ -28,10 +28,33 @@ class ProbeSettingsForm(forms.Form):
             )
         ]
     )
+    blackbox_enabled = forms.BooleanField(
+        label="Enable blackbox tests",
+        required=False,
+        widget=forms.CheckboxInput(attrs={'checked': 'true'})
+    )
+    traceroute_enabled = forms.BooleanField(
+        label="Enable traceroute tests",
+        required=False,
+        widget=forms.CheckboxInput(attrs={'checked': 'true'})
+    )
+    smokeping_enabled = forms.BooleanField(
+        label="Enable smokeping tests",
+        required=False,
+        widget=forms.CheckboxInput(attrs={'checked': 'true'})
+    )
 
 
 class AddProbeForm(ProbeSettingsForm):
-    field_order = ['hardware', 'mac_address', 'iperf3_enabled', 'iperf3_bandwidth_limit']
+    field_order = [
+        'hardware',
+        'mac_address',
+        'iperf3_enabled',
+        'iperf3_bandwidth_limit'
+        'blackbox_enabled'
+        'traceroute_enabled'
+        'smokeping_enabled'
+    ]
     hardware = forms.ModelChoiceField(
         label="Probe hardware",
         queryset=ProbeHardware.objects.all(),

@@ -58,4 +58,6 @@ class Probe(models.Model):
             )
         ]
     )
-
+    test_blackbox = models.BooleanField(default=True)
+    test_traceroute = models.BooleanField(default=True)
+    test_smokeping = models.BooleanField(default=True)

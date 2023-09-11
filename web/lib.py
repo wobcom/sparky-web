@@ -166,7 +166,16 @@ class ProbeRepo:
                         "iperf3": {
                             "enable": probe.test_iperf3,
                             "bandwidthLimit": probe.test_iperf3_bandwidth
-                        }
+                        },
+                        "blackbox": {
+                            "enable": probe.test_blackbox
+                        },
+                        "traceroute": {
+                            "enable": probe.test_blackbox
+                        },
+                        "smokeping": {
+                            "enable": probe.test_blackbox
+                        },
                     }
                 },
                 "system": {
