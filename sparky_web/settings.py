@@ -19,6 +19,7 @@ except ImportError:
 
 REQUIRED_SETTINGS = [
     "ALLOWED_HOSTS",
+    "CSRF_TRUSTED_ORIGINS",
     "DATABASE",
     "SECRET_KEY",
     "HEADSCALE_URL",
@@ -38,6 +39,7 @@ for setting in REQUIRED_SETTINGS:
         )
 
 ALLOWED_HOSTS = getattr(configuration, "ALLOWED_HOSTS")
+CSRF_TRUSTED_ORIGINS = getattr(configuration, 'CSRF_TRUSTED_ORIGINS', [])
 DATABASE = getattr(configuration, "DATABASE")
 SECRET_KEY = getattr(configuration, "SECRET_KEY")
 
