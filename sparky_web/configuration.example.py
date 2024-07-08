@@ -1,5 +1,6 @@
 SECRET_KEY = 'a very secret key'
 ALLOWED_HOSTS = []
+CSRF_TRUSTED_ORIGINS = []
 
 # PostgreSQL database configuration
 DATABASE = {
