@@ -113,7 +113,7 @@ if LDAP_CONFIGURED:
             "LDAP."
         )
 
-VERSION = '1.5.0'
+VERSION = '1.6.2'
 
 LOG_LEVEL = getattr(configuration, "DEBUG")
 LOGGING = {
