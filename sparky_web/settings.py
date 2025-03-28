@@ -115,7 +115,7 @@ if LDAP_CONFIGURED:
 
 VERSION = '1.6.2'
 
-LOG_LEVEL = getattr(configuration, "DEBUG")
+LOG_LEVEL = getattr(configuration, "LOG_LEVEL", "DEBUG")
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
