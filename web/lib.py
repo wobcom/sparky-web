@@ -33,7 +33,7 @@ class Headscale:
         node_id = node['id']
 
         requests.delete(
-            f"{Headscale.headscale_url}/api/v1/machine/{node_id}",
+            f"{Headscale.headscale_url}/api/v1/node/{node_id}",
             headers=Headscale.request_headers
         )
         return True
@@ -84,7 +84,7 @@ class Headscale:
 
     @staticmethod
     def get_all_nodes() -> list:
-        r = requests.get(f"{Headscale.headscale_url}/api/v1/machine", headers=Headscale.request_headers)
+        r = requests.get(f"{Headscale.headscale_url}/api/v1/node", headers=Headscale.request_headers)
         return r.json()['machines']
 
     @staticmethod
