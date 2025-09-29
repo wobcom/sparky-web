@@ -85,7 +85,7 @@ class Headscale:
     @staticmethod
     def get_all_nodes() -> list:
         r = requests.get(f"{Headscale.headscale_url}/api/v1/node", headers=Headscale.request_headers)
-        return r.json()['machines']
+        return r.json()['nodes']
 
     @staticmethod
     def get_all_infra() -> list:
@@ -141,7 +141,7 @@ class Headscale:
         routes = Headscale.get_all_routes()
         for node in nodes:
             for route in routes:
-                if route['machine']['id'] == node['id']:
+                if route['node']['id'] == node['id']:
                     node['route'] = route['prefix']
                     node['routeEnabled'] = route['enabled']
                     node['routeID'] = route['id']
