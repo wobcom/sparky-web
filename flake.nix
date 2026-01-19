@@ -1,12 +1,12 @@
 {
   description = "SPARKY-Web";
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.11";
     flake-utils.url = "github:numtide/flake-utils";
   };
   outputs = { self, nixpkgs, flake-utils }: flake-utils.lib.eachDefaultSystem (system: let
     pkgs = nixpkgs.legacyPackages.${system};
-    python-env = (pkgs.python311.withPackages (ps: with ps; [
+    python-env = (pkgs.python3.withPackages (ps: with ps; [
       django
       django-bootstrap5
       fontawesomefree
