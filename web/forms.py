@@ -4,11 +4,12 @@ from web.models import ProbeHardware
 
 
 class ToggleRouteForm(forms.Form):
-    route_id = forms.IntegerField()
-    route_id.widget = route_id.hidden_widget()
+    node_id = forms.IntegerField()
+    node_id.widget = node_id.hidden_widget()
     route_enabled = forms.BooleanField(required=False)
     route_enabled.widget = route_enabled.hidden_widget()
-
+    route = forms.TextInput()
+    route.widget = route.hidden_widget()
 
 class ProbeSettingsForm(forms.Form):
     iperf3_enabled = forms.BooleanField(

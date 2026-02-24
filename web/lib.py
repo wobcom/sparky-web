@@ -39,18 +39,14 @@ class Headscale:
         return True
 
     @staticmethod
-    def disable_route(route_id: int):
-        r = requests.post(
-            f"{Headscale.headscale_url}/api/v1/routes/{route_id}/disable",
-            headers=Headscale.request_headers
-        )
-        return True
-
-    @staticmethod
-    def enable_route(route_id: int):
+    def enable_route(node_id: int, route: str):
+        payload = {
+            "routes": [ route ]
+        }
         requests.post(
-            f"{Headscale.headscale_url}/api/v1/routes/{route_id}/enable",
+            f"{Headscale.headscale_url}/api/v1/node/{node_id}/approve_routes",
             headers=Headscale.request_headers
+            json=payload
         )
         return True
 
@@ -91,14 +87,14 @@ class Headscale:
     def get_all_infra() -> list:
         nodes = Headscale.get_all_nodes()
         nodes = list(filter(lambda x: x['user']['name'] != 'probes', nodes))
-        nodes = Headscale.map_routes_to_nodes(nodes)
+#        nodes = Headscale.map_routes_to_nodes(nodes)
         return nodes
 
     @staticmethod
     def get_all_probes() -> list:
         nodes = Headscale.get_all_nodes()
         probes = list(filter(lambda x: x['user']['name'] == 'probes', nodes))
-        probes = Headscale.map_routes_to_nodes(probes)
+#        probes = Headscale.map_routes_to_nodes(probes)
         return probes
 
     @staticmethod
@@ -114,18 +110,18 @@ class Headscale:
                 if probe_db.hostname == probe_hs['name']:
                     probe['knownToHS'] = True
                     probe['online'] = probe_hs['online']
-                    probe['routeEnabled'] = probe_hs['routeEnabled']
-                    probe['routeEnabled'] = probe_hs['routeEnabled']
-                    probe['routeID'] = probe_hs['routeID']
+                    probe['routeEnabled'] =  len(probe_hs['approvedRoutes']) > 0
+                    probe['node_id'] = probe_hs['id']
                     probes_hs.remove(probe_hs)
                     break
             probes.append(probe)
         return probes
-
+"""
     @staticmethod
     def get_all_routes():
         r = requests.get(f"{Headscale.headscale_url}/api/v1/routes", headers=Headscale.request_headers)
         return r.json()['routes']
+"""
 
     @staticmethod
     def get_api_key_expiration() -> timedelta:
@@ -136,6 +132,7 @@ class Headscale:
         expiration_time = datetime.fromisoformat(api_key['expiration'])
         return expiration_time - datetime.now(tz=pytz.timezone(TIME_ZONE))
 
+"""
     @staticmethod
     def map_routes_to_nodes(nodes: list) -> list:
         routes = Headscale.get_all_routes()
@@ -148,7 +145,7 @@ class Headscale:
                     routes.remove(route)
                     break
         return nodes
-
+"""
 
 class ProbeRepo:
     @staticmethod

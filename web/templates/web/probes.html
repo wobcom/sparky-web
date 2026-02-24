@@ -33,7 +33,7 @@
                 <button class="badge text-decoration-underline bg-success-subtle border border-success-subtle text-success-emphasis rounded-pill"
                         data-bs-toggle="modal"
                         data-bs-target="#toggleRouteModal"
-                        data-bs-route-id="{{ probe.routeID }}"
+                        data-bs-node-id="{{ probe.node_id }}"
                         data-bs-route-enabled="{{ probe.routeEnabled }}"
                         data-bs-route="{{ probe.ip }}"
                 >Enabled</button>
@@ -41,7 +41,7 @@
                 <button class="badge text-decoration-underline bg-danger-subtle border border-danger-subtle text-danger-emphasis rounded-pill"
                         data-bs-toggle="modal"
                         data-bs-target="#toggleRouteModal"
-                        data-bs-route-id="{{ probe.routeID }}"
+                        data-bs-node-id="{{ probe.node_id }}"
                         data-bs-route-enabled="{{ probe.routeEnabled }}"
                         data-bs-route="{{ probe.ip }}"
                 >Disabled</button>
@@ -123,8 +123,9 @@
           <div class="modal-body">
             <span id="toggleRouteModalInfoText"></span>
             {% csrf_token %}
-            <input type="hidden" id="toggleRouteModalRouteID" name="route_id">
+            <input type="hidden" id="toggleRouteModalNodeID" name="node_id">
             <input type="hidden" id="toggleRouteModalRouteEnabled" name="route_enabled">
+            <input type="hidden" id="toggleRouteModalRoute" name="route">
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>

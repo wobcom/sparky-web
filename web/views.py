@@ -228,12 +228,13 @@ class ToggleRouteView(BaseView):
         if not form.is_valid():
             messages.add_message(request, messages.ERROR, "Form invalid")
             return HttpResponseRedirect(reverse("probes"))
-        route_id = int(form.cleaned_data["route_id"])
+        node_id = int(form.cleaned_data["node_id"])
         route_enabled = bool(form.cleaned_data["route_enabled"])
+        route = form.cleaned_data["route"]
         if route_enabled:
-            Headscale.disable_route(route_id)
+            pass
         else:
-            Headscale.enable_route(route_id)
+            Headscale.enable_route(node_id, route)
         return HttpResponseRedirect(reverse("probes"))
 
 
