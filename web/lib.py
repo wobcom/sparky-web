@@ -45,7 +45,7 @@ class Headscale:
         }
         requests.post(
             f"{Headscale.headscale_url}/api/v1/node/{node_id}/approve_routes",
-            headers=Headscale.request_headers
+            headers=Headscale.request_headers,
             json=payload
         )
         return True
