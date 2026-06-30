@@ -168,11 +168,7 @@ class AddProbeView(BaseView):
                 "Probe with this name, IP or MAC-Address already exists. Please check your inputs and try again."
             )
             return HttpResponseRedirect(reverse("probes"))
-        try:
-            ProbeRepo.commit_probe_config(probe, request.user)
-        except Exception:
-            messages.add_message(request, messages.ERROR, "Error while adding the probe to the config repo.")
-            return HttpResponseRedirect(reverse("probes"))
+        ProbeRepo.commit_probe_config(probe, request.user)
         return HttpResponseRedirect(reverse("probes"))
 
 
@@ -213,11 +209,7 @@ class EditProbeView(BaseView):
         probe.test_traceroute = form.cleaned_data['traceroute_enabled']
         probe.test_smokeping = form.cleaned_data['smokeping_enabled']
         probe.save()
-        try:
-            ProbeRepo.commit_probe_config(probe, request.user)
-        except Exception:
-            messages.add_message(request, messages.ERROR, "Error while editing the probe in the config repo.")
-            return HttpResponseRedirect(reverse("probes"))
+        ProbeRepo.commit_probe_config(probe, request.user)
         messages.add_message(request, messages.SUCCESS, f"Edited probe {probe.hostname}")
         return HttpResponseRedirect(reverse("probes"))
 

@@ -22,6 +22,21 @@ class Headscale:
         "Authorization": f"Bearer {headscale_api_key}"
     }
 
+
+    @staticmethod
+    def get_user(user_name: str) -> bool:
+        resp = requests.get(
+            f"{Headscale.headscale_url}/api/v1/user",
+            params={
+                "name": user_name
+            },
+            headers=Headscale.request_headers,
+        )
+
+        json = resp.json()
+        return next(iter(json['users']), None)
+
+
     @staticmethod
     def delete_node(node_name: str) -> bool:
         nodes = Headscale.get_all_nodes()
@@ -52,8 +67,10 @@ class Headscale:
 
     @staticmethod
     def expire_probe_pre_auth_key(key: str) -> bool:
+        user = Headscale.get_user("probes")
+
         payload = {
-            "user": "probes",
+            "user": user['id'],
             "key": key,
         }
         requests.post(
@@ -65,8 +82,11 @@ class Headscale:
 
     @staticmethod
     def generate_probe_pre_auth_key() -> str:
+
+        user = Headscale.get_user("probes")
+
         payload = {
-            "user": "probes",
+            "user": user['id'],
             "reusable": False,
             "ephemeral": False,
             "expiration": (datetime.now(tz=pytz.timezone(TIME_ZONE)) + timedelta(hours=1)).isoformat()
@@ -76,7 +96,8 @@ class Headscale:
             headers=Headscale.request_headers,
             json=payload
         )
-        return r.json()['preAuthKey']['key']
+        json = r.json()
+        return json['preAuthKey']['key']
 
     @staticmethod
     def get_all_nodes() -> list:
