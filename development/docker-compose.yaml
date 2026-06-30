@@ -1,0 +1,11 @@
+services:
+  postgres:
+    image: postgres:18-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: sparky-web
+      POSTGRES_USER: sparky-web
+      POSTGRES_PASSWORD: sparky-web
+    volumes:
+      - ./postgres-data:/var/lib/postgresql

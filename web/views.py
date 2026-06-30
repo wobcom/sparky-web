@@ -230,11 +230,10 @@ class ToggleRouteView(BaseView):
             return HttpResponseRedirect(reverse("probes"))
         node_id = int(form.cleaned_data["node_id"])
         route_enabled = bool(form.cleaned_data["route_enabled"])
-        route = form.cleaned_data["route"]
-        if route_enabled:
-            pass
-        else:
-            Headscale.enable_route(node_id, route)
+
+        probes = Headscale.get_all_probes_with_live_data()
+        probe = next(iter([p for p in probes if int(p['node_id']) == node_id]), None)
+        Headscale.enable_route(node_id, probe['route'])
         return HttpResponseRedirect(reverse("probes"))
 
 

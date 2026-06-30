@@ -110,18 +110,13 @@ class Headscale:
                 if probe_db.hostname == probe_hs['name']:
                     probe['knownToHS'] = True
                     probe['online'] = probe_hs['online']
+                    probe['route'] =  next(iter(probe_hs['availableRoutes']), None)
                     probe['routeEnabled'] =  len(probe_hs['approvedRoutes']) > 0
                     probe['node_id'] = probe_hs['id']
                     probes_hs.remove(probe_hs)
                     break
             probes.append(probe)
         return probes
-"""
-    @staticmethod
-    def get_all_routes():
-        r = requests.get(f"{Headscale.headscale_url}/api/v1/routes", headers=Headscale.request_headers)
-        return r.json()['routes']
-"""
 
     @staticmethod
     def get_api_key_expiration() -> timedelta:
