@@ -141,7 +141,7 @@ class Headscale:
 
     @staticmethod
     def get_api_key_expiration() -> timedelta:
-        prefix = HEADSCALE_API_KEY[:10]
+        prefix = f'{HEADSCALE_API_KEY[:22]}-***'
         r = requests.get(f"{Headscale.headscale_url}/api/v1/apikey", headers=Headscale.request_headers)
         api_keys = r.json()['apiKeys']
         api_key = list(filter(lambda x: x['prefix'] == prefix, api_keys)).pop()
