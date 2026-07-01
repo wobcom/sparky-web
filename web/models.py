@@ -20,8 +20,8 @@ class Probe(models.Model):
     ip = models.GenericIPAddressField("Tailnet IP", protocol="ipv6", unique=True)
     pre_auth_key = models.CharField(
         "Tailnet PreAuthKey",
-        max_length=48,
-        validators=[MinLengthValidator(48)],
+        max_length=88,
+        validators=[MinLengthValidator(88)],
         unique=True
     )
     is_registered = models.BooleanField(default=False)
